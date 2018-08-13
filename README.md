@@ -94,7 +94,9 @@ After experimenting with different models, including SSD, FRCNN, and RFCN, we fo
 SSD model was extremely faster that FRCNN, but its performance was poor. So finally, we decided to use an SSD model pre-trained on [COCO dataset](http://cocodataset.org/), and then retrained on [Apollo Traffic Lights Detection Dataset](http://data.apollo.auto/help?name=data_intro_2d&data_key=traffic_light_label&data_type=0&locale=en-us&lang=en).
 We extraxted the site data from the `rosbag` provided by Udacity and applied the model, and it was very accurate on detecting and classifying the traffic lights.
 
-[![IMAGE ALT TEXT HERE](https://img.youtube.com/vi/KHAbB0MJ4js/0.jpg)](https://www.youtube.com/watch?v=KHAbB0MJ4js)
+![](imgs/SSD_V4_result.gif)
+
+**[Youtube Link](https://youtu.be/KHAbB0MJ4js)**
 
 
 ## Planning Subsystem
