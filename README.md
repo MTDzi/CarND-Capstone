@@ -14,7 +14,7 @@ The System Integration project is the final project of Udacity's Self-Driving Ca
 ## The Team
 
 * Maciej Dziubinski (ponadto@gmail.com)
-* Ankit Shrivastava (shrivastavaanki700@gmail.com)
+* Ankit Shrivastava (shrivastavaankit700@gmail.com)
 * Mohamed Ameen (mohamed.a.ameen93@gmail.com)
 
 ## Software Architecture
