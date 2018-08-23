@@ -27,6 +27,21 @@ class TLDetector(object):
         self.waypoints_2d = None
         self.camera_image = None
         self.lights = []
+        
+        self.upcoming_red_light_pub = rospy.Publisher('/traffic_waypoint', Int32, queue_size=1)
+
+        self.bridge = CvBridge()
+        self.light_classifier = TLClassifier()
+        self.listener = tf.TransformListener()
+
+        self.state = TrafficLight.UNKNOWN
+        self.last_state = TrafficLight.UNKNOWN
+        self.last_wp = -1
+        self.state_count = 0
+        
+        self.prediction_counter = 0
+        self.prev_pred = 0
+        self.waypoint_tree = None
 
         rospy.Subscriber('/current_pose', PoseStamped, self.pose_cb)
         rospy.Subscriber('/base_waypoints', Lane, self.waypoints_cb)
@@ -43,20 +58,6 @@ class TLDetector(object):
 
         config_string = rospy.get_param('/traffic_light_config')
         self.config = yaml.load(config_string)
-
-        self.upcoming_red_light_pub = rospy.Publisher('/traffic_waypoint', Int32, queue_size=1)
-
-        self.bridge = CvBridge()
-        self.light_classifier = TLClassifier()
-        self.listener = tf.TransformListener()
-
-        self.state = TrafficLight.UNKNOWN
-        self.last_state = TrafficLight.UNKNOWN
-        self.last_wp = -1
-        self.state_count = 0
-        
-        self.prediction_counter = 0
-        self.prev_pred = 0
         
         rospy.spin()
 
@@ -115,7 +116,10 @@ class TLDetector(object):
         Returns:
             int: index of the closest waypoint in self.waypoints
         """
-        closest_idx = self.waypoint_tree.query([x, y], 1)[1]
+        if self.waypoint_tree:
+            closest_idx = self.waypoint_tree.query([x, y], 1)[1]
+        else:
+            closest_idx = 0
         return closest_idx
 
     def get_light_state(self, light):
@@ -161,18 +165,19 @@ class TLDetector(object):
         if self.pose:
             position = self.pose.pose.position
             car_wp_idx = self.get_closest_waypoint(position.x, position.y)
-            diff = len(self.waypoints.waypoints)
-            for i, light in enumerate(self.lights):
-                # Get sto line waypoint index
-                line = stop_line_positions[i]
-                temp_wp_idx = self.get_closest_waypoint(line[0], line[1])
-                # Find closest stop line waypoint index
-                d = temp_wp_idx - car_wp_idx  # Number of indices between the car's
-                                              # position and the tl waypoint
-                if d >= 0 and d < diff:
-                    diff = d
-                    closest_light = light
-                    line_wp_idx = temp_wp_idx
+            if self.waypoints:  
+                diff = len(self.waypoints.waypoints)
+                for i, light in enumerate(self.lights):
+                    # Get sto line waypoint index
+                    line = stop_line_positions[i]
+                    temp_wp_idx = self.get_closest_waypoint(line[0], line[1])
+                    # Find closest stop line waypoint index
+                    d = temp_wp_idx - car_wp_idx  # Number of indices between the car's
+                    # position and the tl waypoint
+                    if d >= 0 and d < diff:
+                        diff = d
+                        closest_light = light
+                        line_wp_idx = temp_wp_idx
 
         if closest_light:
             state = self.get_light_state(closest_light)

@@ -51,6 +51,7 @@ class WaypointUpdater(object):
         # Add other member variables you need below
         self.pose = None
         self.base_waypoints = None
+        self.base_lane = None
         self.waypoints_2d = None
         self.waypoint_tree = None
         self.stopline_wp_idx = -1
